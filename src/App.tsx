@@ -16,15 +16,13 @@ function App() {
     try {
       const canvas = await html2canvas(rateRef.current, {
         backgroundColor: "white",
+        useCORS: true,
       });
 
-      // `canvas.toDataURL()`을 사용해야 올바른 DataURL을 가져올 수 있음
       const dataUrl = canvas.toDataURL("image/png");
 
-      // dataUrl을 Blob으로 변환
       const blob = await (await fetch(dataUrl)).blob();
 
-      // Blob을 사용하여 이미지 저장
       saveAs(blob, "승리요정.png");
     } catch (error) {
       console.error("이미지 저장에 실패했습니다.", error);
