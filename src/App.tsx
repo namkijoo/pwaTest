@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import saveAs from "file-saver";
-import { toPng } from "html-to-image";
+import html2canvas from "html2canvas";
+// import { toPng } from "html-to-image";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -13,16 +14,17 @@ function App() {
       return;
     }
     try {
-      const dataUrl = await toPng(rateRef.current, {
-        cacheBust: true,
-        style: {
-          margin: "0",
-          backgroundColor: "white",
-        },
+      const canvas = await html2canvas(rateRef.current, {
+        backgroundColor: "white",
       });
 
+      // `canvas.toDataURL()`을 사용해야 올바른 DataURL을 가져올 수 있음
+      const dataUrl = canvas.toDataURL("image/png");
+
+      // dataUrl을 Blob으로 변환
       const blob = await (await fetch(dataUrl)).blob();
 
+      // Blob을 사용하여 이미지 저장
       saveAs(blob, "승리요정.png");
     } catch (error) {
       console.error("이미지 저장에 실패했습니다.", error);
