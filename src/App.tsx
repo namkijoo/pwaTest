@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import saveAs from "file-saver";
 import html2canvas from "html2canvas";
-// import { toPng } from "html-to-image";
+import { toPng } from "html-to-image";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -30,6 +30,27 @@ function App() {
       console.error("이미지 저장에 실패했습니다.", error);
     }
   };
+
+  const handleDownload2 = async () => {
+    if (!rateRef.current) {
+      return;
+    }
+    try {
+      const dataUrl = await toPng(rateRef.current, {
+        cacheBust: true,
+        style: {
+          margin: "0",
+          backgroundColor: "white",
+        },
+      });
+
+      const blob = await (await fetch(dataUrl)).blob();
+
+      saveAs(blob, "승리요정.png");
+    } catch (error) {
+      console.error("이미지 저장에 실패했습니다.", error);
+    }
+  };
   return (
     <div ref={rateRef}>
       <div>
@@ -43,6 +64,7 @@ function App() {
       <h1>Vite + React</h1>
       <div className="card">
         <button onClick={handleDownload}>다운</button>
+        <button onClick={handleDownload2}>다운2</button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
