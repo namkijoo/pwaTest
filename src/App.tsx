@@ -17,6 +17,9 @@ function App() {
       const canvas = await html2canvas(rateRef.current, {
         backgroundColor: "white",
         useCORS: true,
+        scale: 1,
+        width: 350,
+        height: 350,
       });
 
       const dataUrl = canvas.toDataURL("image/png");
