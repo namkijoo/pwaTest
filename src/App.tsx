@@ -22,7 +22,7 @@ function App() {
         height: 350,
       });
 
-      const dataUrl = canvas.toDataURL("image/png");
+      const dataUrl = canvas.toDataURL("image/svg");
 
       const blob = await (await fetch(dataUrl)).blob();
 
