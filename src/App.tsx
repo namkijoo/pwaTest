@@ -52,6 +52,42 @@ function App() {
       console.error("이미지 저장에 실패했습니다.", error);
     }
   };
+
+  const handleShareToInstagram = async () => {
+    if (!rateRef.current) {
+      return;
+    }
+    try {
+      // 1️⃣ HTML 요소를 PNG로 변환
+      const dataUrl = await toPng(rateRef.current, {
+        cacheBust: true,
+        style: {
+          margin: "0",
+          backgroundColor: "white",
+        },
+      });
+
+      // 2️⃣ Base64 데이터 추출
+      const base64Data = dataUrl.split(",")[1];
+
+      // 3️⃣ iOS용 UIPasteboard에 저장
+      navigator.clipboard
+        .write([
+          new ClipboardItem({
+            "image/png": fetch(`data:image/png;base64,${base64Data}`).then(
+              (res) => res.blob()
+            ),
+          }),
+        ])
+        .then(() => {
+          // 4️⃣ 인스타그램 스토리 공유 딥 링크 실행
+          window.location.href = "instagram-stories://share";
+        })
+        .catch((err) => console.error("이미지 복사 실패", err));
+    } catch (error) {
+      console.error("스토리 공유 실패", error);
+    }
+  };
   return (
     <div ref={rateRef}>
       <div>
@@ -71,6 +107,7 @@ function App() {
       <div className="card">
         <button onClick={handleDownload}>다운</button>
         <button onClick={handleDownload2}>다운2</button>
+        <button onClick={handleShareToInstagram}>인스타그램 공유</button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
