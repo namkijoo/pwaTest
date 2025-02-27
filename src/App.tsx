@@ -53,35 +53,27 @@ function App() {
     }
   };
 
-  const handleDownloadAndShareInstagram = async () => {
+  const handleShareToInstagram = async () => {
     if (!rateRef.current) {
       return;
     }
 
     try {
-      // 1️⃣ HTML 요소를 PNG 이미지로 변환
       const dataUrl = await toPng(rateRef.current, {
         cacheBust: true,
-        style: {
-          margin: "0",
-          backgroundColor: "white",
-        },
+        backgroundColor: "transparent",
       });
 
-      // 2️⃣ Blob 변환
       const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], "instagram-story.png", {
+        type: "image/png",
+      });
+      const fileUrl = URL.createObjectURL(file);
 
-      // 3️⃣ Blob URL 생성
-      const blobUrl = URL.createObjectURL(blob);
-
-      // 4️⃣ 인스타그램 스토리에 공유할 URL 생성
-      const shareUrl = `instagram://share?text=&uri=${blobUrl}`;
-
-      // 5️⃣ 인스타그램 앱 열기
-      window.location.href = shareUrl;
+      const instagramUrl = `instagram://library?AssetPath=${fileUrl}`;
+      window.open(instagramUrl, "_system");
     } catch (error) {
-      console.error("스토리 공유 실패:", error);
-      alert("스토리 공유에 실패했습니다. 직접 업로드해주세요!");
+      console.error("이미지 공유에 실패했습니다.", error);
     }
   };
 
@@ -104,9 +96,7 @@ function App() {
       <div className="card">
         <button onClick={handleDownload}>다운</button>
         <button onClick={handleDownload2}>다운2</button>
-        <button onClick={handleDownloadAndShareInstagram}>
-          인스타그램 공유4
-        </button>
+        <button onClick={handleShareToInstagram}>인스타그램 공유5</button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
