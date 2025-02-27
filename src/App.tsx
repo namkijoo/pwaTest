@@ -68,32 +68,36 @@ function App() {
         },
       });
 
-      // 2️⃣ Base64 인코딩된 이미지 추출 (data:image/png;base64,... 형태)
-      const base64Data = dataUrl.split(",")[1]; // "data:image/png;base64,..."에서 Base64 부분만 추출
+      // 2️⃣ Base64 데이터 추출 (data:image/png;base64,... 제거)
+      const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
 
-      // 3️⃣ 인스타그램 스토리 공유 Custom URL Scheme 설정
+      // 3️⃣ 인스타그램 스토리 공유를 위한 Deep Link URL 생성
       const shareURL = `instagram-stories://share?source_application=com.yourapp.bundleid`;
 
-      // 4️⃣ 데이터 전달을 위해 `Intent` 형식으로 FormData 생성
+      // 4️⃣ `backgroundImage`로 이미지 전달을 위해 Intent 생성
       const formData = new FormData();
       formData.append("backgroundImage", base64Data);
 
       // 5️⃣ iOS에서 Deep Link 실행
-      const blob = new Blob([formData], { type: "image/png" });
+      const blob = new Blob(
+        [Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0))],
+        { type: "image/png" }
+      );
       const file = new File([blob], "story.png", { type: "image/png" });
 
       try {
-        // iOS에서는 Clipboard API를 활용해 이미지 저장 후 인스타그램 실행
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            "image/png": file,
-          }),
-        ]);
+        // 📌 인스타그램 스토리에 이미지 자동 추가
+        await navigator.share({
+          files: [file],
+          title: "인스타그램 스토리 공유",
+          text: "스토리에 자동 추가됨",
+          url: shareURL,
+        });
 
-        // 6️⃣ 인스타그램 앱 실행
+        // 📌 Deep Link 실행
         window.location.href = shareURL;
-      } catch (clipboardError) {
-        console.error("📌 Clipboard API 실패: ", clipboardError);
+      } catch (error) {
+        console.error("📌 공유 실패: ", error);
         alert(
           "스토리 공유가 지원되지 않는 환경입니다. 인스타그램 앱에서 직접 업로드해주세요!"
         );
