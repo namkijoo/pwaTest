@@ -75,7 +75,7 @@ function App() {
       const blobUrl = URL.createObjectURL(blob);
 
       // 4️⃣ 인스타그램 스토리에 공유할 URL 생성
-      const shareUrl = `intent://share?text=&uri=${blobUrl}#Intent;scheme=instagram;package=com.instagram.android;end`;
+      const shareUrl = `instagram://share?text=&uri=${blobUrl}`;
 
       // 5️⃣ 인스타그램 앱 열기
       window.location.href = shareUrl;
@@ -105,7 +105,7 @@ function App() {
         <button onClick={handleDownload}>다운</button>
         <button onClick={handleDownload2}>다운2</button>
         <button onClick={handleDownloadAndShareInstagram}>
-          인스타그램 공유3
+          인스타그램 공유4
         </button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
