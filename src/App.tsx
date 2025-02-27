@@ -52,7 +52,6 @@ function App() {
       console.error("이미지 저장에 실패했습니다.", error);
     }
   };
-  import { toPng } from "html-to-image";
 
   const handleDownloadAndShareInstagram = async () => {
     if (!rateRef.current) {
