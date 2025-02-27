@@ -57,8 +57,9 @@ function App() {
     if (!rateRef.current) {
       return;
     }
+
     try {
-      // 1️⃣ HTML 요소를 PNG로 변환
+      // 1️⃣ HTML 요소 → PNG 변환
       const dataUrl = await toPng(rateRef.current, {
         cacheBust: true,
         style: {
@@ -67,25 +68,30 @@ function App() {
         },
       });
 
-      // 2️⃣ Base64 데이터 추출
-      const base64Data = dataUrl.split(",")[1];
+      // 2️⃣ Data URL → Blob 변환
+      const blob = await (await fetch(dataUrl)).blob();
 
-      // 3️⃣ iOS용 UIPasteboard에 저장
-      navigator.clipboard
-        .write([
+      // 3️⃣ Blob → File 변환 (iOS에서 인식 가능)
+      const file = new File([blob], "story.png", { type: "image/png" });
+
+      // 4️⃣ `UIPasteboard`에 이미지 저장
+      try {
+        await navigator.clipboard.write([
           new ClipboardItem({
-            "image/png": fetch(`data:image/png;base64,${base64Data}`).then(
-              (res) => res.blob()
-            ),
+            "image/png": file,
           }),
-        ])
-        .then(() => {
-          // 4️⃣ 인스타그램 스토리 공유 딥 링크 실행
-          window.location.href = "instagram-stories://share";
-        })
-        .catch((err) => console.error("이미지 복사 실패", err));
+        ]);
+
+        // 5️⃣ 인스타그램 스토리 공유 `Deep Link` 실행
+        window.location.href = "instagram-stories://share";
+      } catch (clipboardError) {
+        console.error("📌 Clipboard API 실패: ", clipboardError);
+        alert(
+          "스토리 공유가 지원되지 않는 환경입니다. 인스타그램 앱에서 직접 업로드해주세요!"
+        );
+      }
     } catch (error) {
-      console.error("스토리 공유 실패", error);
+      console.error("📌 이미지 변환 실패:", error);
     }
   };
   return (
