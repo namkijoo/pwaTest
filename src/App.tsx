@@ -74,24 +74,20 @@ function App() {
       // 3️⃣ Blob → File 변환 (iOS에서 인식 가능)
       const file = new File([blob], "story.png", { type: "image/png" });
 
-      // 4️⃣ `UIPasteboard`에 이미지 저장
-      try {
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            "image/png": file,
-          }),
-        ]);
+      // 4️⃣ FormData를 활용해 이미지 전달 준비
+      const formData = new FormData();
+      formData.append("file", file);
 
-        // 5️⃣ 인스타그램 스토리 공유 `Deep Link` 실행
-        window.location.href = "instagram-stories://share";
-      } catch (clipboardError) {
-        console.error("📌 Clipboard API 실패: ", clipboardError);
-        alert(
-          "스토리 공유가 지원되지 않는 환경입니다. 인스타그램 앱에서 직접 업로드해주세요!"
-        );
-      }
+      // 5️⃣ iOS 인스타그램 스토리 공유 Deep Link 실행
+      const instagramURL = `instagram-stories://share?source_application=com.yourapp.bundleid`;
+
+      // 6️⃣ iOS에서 `window.location.href`로 실행 (PWA 지원)
+      window.location.href = instagramURL;
     } catch (error) {
-      console.error("📌 이미지 변환 실패:", error);
+      console.error("스토리 공유 실패:", error);
+      alert(
+        "스토리 공유가 지원되지 않는 환경입니다. 인스타그램 앱에서 직접 업로드해주세요!"
+      );
     }
   };
   return (
