@@ -106,7 +106,7 @@ function App() {
         <button onClick={handleDownload}>다운</button>
         <button onClick={handleDownload2}>다운2</button>
         <button onClick={handleDownloadAndShareInstagram}>
-          인스타그램 공유2
+          인스타그램 공유3
         </button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
