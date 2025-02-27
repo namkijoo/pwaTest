@@ -103,7 +103,7 @@ function App() {
       <div className="card">
         <button onClick={handleDownload}>다운</button>
         <button onClick={handleDownload2}>다운2</button>
-        <button onClick={handleShareToInstagram}>인스타그램 공유5</button>
+        <button onClick={handleShareToInstagram}>인스타그램 공유6</button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
