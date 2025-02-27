@@ -52,14 +52,13 @@ function App() {
       console.error("이미지 저장에 실패했습니다.", error);
     }
   };
-
-  const handleShareToInstagram = async () => {
+  const handleDownloadAndShareInstagram = async () => {
     if (!rateRef.current) {
       return;
     }
 
     try {
-      // 1️⃣ HTML 요소 → PNG 변환
+      // 1️⃣ HTML 요소를 PNG 이미지로 변환
       const dataUrl = await toPng(rateRef.current, {
         cacheBust: true,
         style: {
@@ -68,45 +67,20 @@ function App() {
         },
       });
 
-      // 2️⃣ Base64 데이터 추출 (data:image/png;base64,... 제거)
-      const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+      // 2️⃣ Blob 변환
+      const blob = await (await fetch(dataUrl)).blob();
 
-      // 3️⃣ Blob 변환
-      const byteCharacters = atob(base64Data);
-      const byteNumbers = new Array(byteCharacters.length)
-        .fill(0)
-        .map((_, i) => byteCharacters.charCodeAt(i));
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: "image/png" });
+      // 3️⃣ Blob URL 생성
+      const blobUrl = URL.createObjectURL(blob);
 
-      // 4️⃣ FormData 생성
-      const formData = new FormData();
-      formData.append("backgroundImage", blob);
+      // 4️⃣ 인스타그램 스토리에 공유할 URL 생성
+      const shareUrl = `intent://share?text=&uri=${blobUrl}#Intent;scheme=instagram;package=com.instagram.android;end`;
 
-      // 5️⃣ 인스타그램 스토리 공유를 위한 Deep Link 실행
-      const shareURL = `instagram-stories://share`;
-
-      // 6️⃣ iOS에서 Intent를 사용해 공유 실행
-      const file = new File([blob], "story.png", { type: "image/png" });
-
-      try {
-        await navigator.share({
-          files: [file],
-          title: "인스타그램 스토리 공유",
-          text: "스토리에 자동 추가됨",
-          url: shareURL,
-        });
-
-        // Deep Link 실행
-        window.location.href = shareURL;
-      } catch (shareError) {
-        console.error("📌 공유 실패: ", shareError);
-        alert(
-          "스토리 공유가 지원되지 않는 환경입니다. 인스타그램 앱에서 직접 업로드해주세요!"
-        );
-      }
+      // 5️⃣ 인스타그램 앱 열기
+      window.location.href = shareUrl;
     } catch (error) {
       console.error("스토리 공유 실패:", error);
+      alert("스토리 공유에 실패했습니다. 직접 업로드해주세요!");
     }
   };
   return (
@@ -128,7 +102,9 @@ function App() {
       <div className="card">
         <button onClick={handleDownload}>다운</button>
         <button onClick={handleDownload2}>다운2</button>
-        <button onClick={handleShareToInstagram}>인스타그램 공유2</button>
+        <button onClick={handleDownloadAndShareInstagram}>
+          인스타그램 공유2
+        </button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
