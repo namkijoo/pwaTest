@@ -71,22 +71,25 @@ function App() {
       // 2️⃣ Base64 데이터 추출 (data:image/png;base64,... 제거)
       const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
 
-      // 3️⃣ 인스타그램 스토리 공유를 위한 Deep Link URL 생성
-      const shareURL = `instagram-stories://share?source_application=com.yourapp.bundleid`;
+      // 3️⃣ Blob 변환
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length)
+        .fill(0)
+        .map((_, i) => byteCharacters.charCodeAt(i));
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "image/png" });
 
-      // 4️⃣ `backgroundImage`로 이미지 전달을 위해 Intent 생성
+      // 4️⃣ FormData 생성
       const formData = new FormData();
-      formData.append("backgroundImage", base64Data);
+      formData.append("backgroundImage", blob);
 
-      // 5️⃣ iOS에서 Deep Link 실행
-      const blob = new Blob(
-        [Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0))],
-        { type: "image/png" }
-      );
+      // 5️⃣ 인스타그램 스토리 공유를 위한 Deep Link 실행
+      const shareURL = `instagram-stories://share`;
+
+      // 6️⃣ iOS에서 Intent를 사용해 공유 실행
       const file = new File([blob], "story.png", { type: "image/png" });
 
       try {
-        // 📌 인스타그램 스토리에 이미지 자동 추가
         await navigator.share({
           files: [file],
           title: "인스타그램 스토리 공유",
@@ -94,10 +97,10 @@ function App() {
           url: shareURL,
         });
 
-        // 📌 Deep Link 실행
+        // Deep Link 실행
         window.location.href = shareURL;
-      } catch (error) {
-        console.error("📌 공유 실패: ", error);
+      } catch (shareError) {
+        console.error("📌 공유 실패: ", shareError);
         alert(
           "스토리 공유가 지원되지 않는 환경입니다. 인스타그램 앱에서 직접 업로드해주세요!"
         );
@@ -125,7 +128,7 @@ function App() {
       <div className="card">
         <button onClick={handleDownload}>다운</button>
         <button onClick={handleDownload2}>다운2</button>
-        <button onClick={handleShareToInstagram}>인스타그램 공유1</button>
+        <button onClick={handleShareToInstagram}>인스타그램 공유2</button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
