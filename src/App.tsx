@@ -68,26 +68,38 @@ function App() {
         },
       });
 
-      // 2️⃣ Data URL → Blob 변환
-      const blob = await (await fetch(dataUrl)).blob();
+      // 2️⃣ Base64 인코딩된 이미지 추출 (data:image/png;base64,... 형태)
+      const base64Data = dataUrl.split(",")[1]; // "data:image/png;base64,..."에서 Base64 부분만 추출
 
-      // 3️⃣ Blob → File 변환 (iOS에서 인식 가능)
+      // 3️⃣ 인스타그램 스토리 공유 Custom URL Scheme 설정
+      const shareURL = `instagram-stories://share?source_application=com.yourapp.bundleid`;
+
+      // 4️⃣ 데이터 전달을 위해 `Intent` 형식으로 FormData 생성
+      const formData = new FormData();
+      formData.append("backgroundImage", base64Data);
+
+      // 5️⃣ iOS에서 Deep Link 실행
+      const blob = new Blob([formData], { type: "image/png" });
       const file = new File([blob], "story.png", { type: "image/png" });
 
-      // 4️⃣ FormData를 활용해 이미지 전달 준비
-      const formData = new FormData();
-      formData.append("file", file);
+      try {
+        // iOS에서는 Clipboard API를 활용해 이미지 저장 후 인스타그램 실행
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "image/png": file,
+          }),
+        ]);
 
-      // 5️⃣ iOS 인스타그램 스토리 공유 Deep Link 실행
-      const instagramURL = `instagram-stories://share?source_application=com.yourapp.bundleid`;
-
-      // 6️⃣ iOS에서 `window.location.href`로 실행 (PWA 지원)
-      window.location.href = instagramURL;
+        // 6️⃣ 인스타그램 앱 실행
+        window.location.href = shareURL;
+      } catch (clipboardError) {
+        console.error("📌 Clipboard API 실패: ", clipboardError);
+        alert(
+          "스토리 공유가 지원되지 않는 환경입니다. 인스타그램 앱에서 직접 업로드해주세요!"
+        );
+      }
     } catch (error) {
       console.error("스토리 공유 실패:", error);
-      alert(
-        "스토리 공유가 지원되지 않는 환경입니다. 인스타그램 앱에서 직접 업로드해주세요!"
-      );
     }
   };
   return (
@@ -109,7 +121,7 @@ function App() {
       <div className="card">
         <button onClick={handleDownload}>다운</button>
         <button onClick={handleDownload2}>다운2</button>
-        <button onClick={handleShareToInstagram}>인스타그램 공유</button>
+        <button onClick={handleShareToInstagram}>인스타그램 공유1</button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
