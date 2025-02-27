@@ -68,10 +68,17 @@ function App() {
       const file = new File([blob], "instagram-story.png", {
         type: "image/png",
       });
-      const fileUrl = URL.createObjectURL(file);
 
-      const instagramUrl = `instagram://library?AssetPath=${fileUrl}`;
-      window.open(instagramUrl, "_system");
+      // Share API를 사용하여 공유
+      if (navigator.share) {
+        await navigator.share({
+          title: "인스타그램에 공유하기",
+          text: "이미지를 공유합니다!",
+          files: [file], // 여기서 파일을 포함합니다.
+        });
+      } else {
+        alert("이 기기는 공유 기능을 지원하지 않습니다.");
+      }
     } catch (error) {
       console.error("이미지 공유에 실패했습니다.", error);
     }
