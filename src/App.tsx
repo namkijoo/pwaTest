@@ -52,6 +52,8 @@ function App() {
       console.error("이미지 저장에 실패했습니다.", error);
     }
   };
+  import { toPng } from "html-to-image";
+
   const handleDownloadAndShareInstagram = async () => {
     if (!rateRef.current) {
       return;
@@ -83,6 +85,7 @@ function App() {
       alert("스토리 공유에 실패했습니다. 직접 업로드해주세요!");
     }
   };
+
   return (
     <div ref={rateRef}>
       <div>
